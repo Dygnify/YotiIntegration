@@ -1,0 +1,19 @@
+{
+  "name": "yoti_",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "yoti": "3.21.0"
+  },
+  "devDependencies": {
+    "@getyoti/sdk-sandbox": "1.6.0"
+  }
+}
