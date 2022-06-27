@@ -1,0 +1,39 @@
+
+    <iframe src="https://api.yoti.com/sandbox/idverify/v1/web/index.html" allow="camera" width="100%" height="100%" id="iframeId"></iframe> 
+
+    <script> 
+       const iframe = document.getElementById('iframeId').contentWindow;
+       const origin = 'https://api.yoti.com';
+       window.addEventListener(
+           'message',
+           event => {
+              if (event.data.eventType === 'STARTED' && event.origin === origin) {
+                   iframe.postMessage({
+                           eventType: 'INIT_SESSION',
+                           sessionID: '91c23f9c-b485-433d-8aa6-6a320aae2189',
+                           sessionToken: '97a306cc-8498-4124-87f0-e309e61ed44d',
+                       },
+                       origin
+                   );
+               }
+           }
+       );
+
+    window.addEventListener(
+    'message',
+    function(event) {
+      console.log('Message received', event.data);
+
+      if (event.data.eventType === 'SUCCESS') {
+        // Act upon success
+        console.log("sucess")
+      } else if (event.data.eventType === "ERROR") {
+        // Act upon error
+       const errorCode = event.data.eventCode;
+       console.log("error")
+      }
+    }
+  );
+
+
+</script>
