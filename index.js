@@ -11,7 +11,9 @@ const {
   SdkConfigBuilder,
   NotificationConfigBuilder,
   DocScanClient,
-  Client
+  Client,
+  RequestedThirdPartyIdentityCheckBuilder,
+  RequestedWatchlistScreeningCheckBuilder
 } = require("yoti");
 
 
@@ -61,6 +63,14 @@ const sdkConfig = new SdkConfigBuilder()
   .withAllowHandoff(true)
   .build();
 
+const thirdPartyIdentityCheck = new RequestedThirdPartyIdentityCheckBuilder()
+  .build();
+
+const watchlistScreeningCheck = new RequestedWatchlistScreeningCheckBuilder()
+  .withAdverseMediaCategory()
+  .withSanctionsCategory()
+  .build()
+
 //Buiding the Session with defined specification from above
 const sessionSpec = new SessionSpecificationBuilder()
   .withClientSessionTokenTtl(600)
@@ -70,6 +80,8 @@ const sessionSpec = new SessionSpecificationBuilder()
   .withRequestedCheck(livenessCheck)
   .withRequestedCheck(faceMatchCheck)
   .withRequestedTask(textExtractionTask)
+  .withRequestedCheck(thirdPartyIdentityCheck)
+  .withRequestedCheck(watchlistScreeningCheck)
   .withSdkConfig(sdkConfig)
   .build();
 
@@ -86,3 +98,98 @@ const sessionSpec = new SessionSpecificationBuilder()
     .catch((err) => {
         console.log(err)
     });
+
+
+let sessionId = "";
+
+if(sessionId === ""){
+
+}
+else{
+  // Returns a session result
+  docScanClient.getSession(sessionId).then(session => {
+    // Returns the session state
+    const state = session.getState();
+    
+    // Returns session resources
+    const resources = session.getResources();
+
+    // Returns all checks on the session
+    const checks = session.getChecks();
+
+    // Return specific check types
+    const authenticityChecks = session.getAuthenticityChecks();
+    const faceMatchChecks = session.getFaceMatchChecks();
+    const textDataChecks = session.getTextDataChecks();
+    const livenessChecks = session.getLivenessChecks();
+    const watchlistScreeningChecks = session.getWatchlistScreeningChecks();
+    const watchlistAdvancedCaChecks = session.getWatchlistAdvancedCaChecks();
+
+    // Returns biometric consent timestamp
+    const biometricConsent = session.getBiometricConsentTimestamp();
+    
+  }).catch(error => {
+    // handle error
+  })
+
+  // Retrieve user data
+  docScanClient.getSession(sessionId).then(session => {
+    // Returns all resources in the session
+    const resources = session.getResources();
+
+    // Returns a collection of ID Documents
+    const idDocuments = resources.getIdDocuments();
+
+    idDocuments.map((idDocument) => {
+
+        // Gets the UUID of the document resource
+        const id = idDocument.getId();
+
+        // Returns the ID Document Type
+        const documentType = idDocument.getDocumentType();
+
+        // Returns the ID Document country
+        const issuingCountry = idDocument.getIssuingCountry();
+
+        // Returns pages of an ID Document
+        const pages = idDocument.getPages();
+        // Get pages media ids
+        const pageMediaIds = pages.map(page => {
+            if (page.getMedia() && page.getMedia().getId()) {
+                return page.getMedia().getId();
+            }
+            return null;
+        });
+
+        // Returns document fields object
+        const documentFields = idDocument.getDocumentFields();
+        // Get document fields media id
+        let documentFieldsMediaId = null;
+        if (documentFields) {
+            documentFieldsMediaId = documentFields.getMedia().getId();
+        }
+    });
+
+    // Returns a collection of liveness capture resources
+    const livenessCapture = resources.getLivenessCapture();
+    const zoomLiveness = resources.getZoomLivenessResources();
+    
+  }).catch(error => {
+    console.log(error)
+    // handle error
+  })
+
+  // Retrieve images
+  let pageMediaId = "";
+  docScanClient.getMediaContent(sessionId, pageMediaId).then(media => {
+    const content = media.getContent();
+    const buffer = content.toBuffer();
+    const base64Content = media.getBase64Content();
+    const mimeType = media.getMimeType();
+    // handle base64content or buffer
+  }).catch(error => {
+    console.log(error)
+    // handle error
+  })
+
+}
